@@ -21,7 +21,7 @@ namespace Analysis.Animal.System.Controllers
             if (formFile == null)
                 throw new Exception("Não é possível importar a planilha sem ter uma planilha.");
 
-            var message = _uploadDataService.UploadSupportSheet(formFile.FileName);
+            var message = _uploadDataService.UploadSupportSheet(formFile);
             return Ok(message);
         }
 
@@ -32,7 +32,7 @@ namespace Analysis.Animal.System.Controllers
             if (formFile == null)
                 throw new Exception("Não é possível importar a planilha sem ter uma planilha.");
 
-            var message = _uploadDataService.UploadFarm(formFile.FileName);
+            var message = _uploadDataService.UploadFarm(formFile);
             return Ok(message);
         }
     }

@@ -1,5 +1,6 @@
 using Analysis.Animal.System.Services;
 using Analysis.Animal.System.Services.Interfaces;
+using Analysis.Animal.System.Services.OpenAI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUploadDataService, UploadDataService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 
 var app = builder.Build();
 
