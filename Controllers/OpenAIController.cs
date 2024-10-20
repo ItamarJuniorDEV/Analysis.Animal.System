@@ -14,12 +14,20 @@ namespace Analysis.Animal.System.Controllers
             _OpenAIService = OpenAIService;
         }
 
-        [HttpPost]
-        [Route("GenerateHtml")]
-        public IActionResult GenerateHtml()
+        [HttpGet]
+        [Route("GetAnalyticsData")]
+        public IActionResult GetAnalyticsData()
         {
-            var html = _OpenAIService.GenerateHtml("Crie um roteiro de viagens para esse fim de semana e retorne em html e css com tudo num arquivo html estilizado, não coloque testo no retorno, apenas código, sem markdown (```html)");
-            return Ok(html);
+            var returnMessage = _OpenAIService.GetAnalyticsData();
+            return Ok(returnMessage);
+        }
+
+        [HttpPost]
+        [Route("SendMessage")]
+        public IActionResult SendMessage(string message)
+        {
+            var returnMessage = _OpenAIService.SendMessageToOpenAI(message);
+            return Ok(returnMessage);
         }
     }
 }

@@ -18,7 +18,139 @@ namespace Analysis.Animal.System.Services
             return $"Arquivo com as fazendo de nome {formFile.FileName} importado com sucesso.";
         }
 
-        public string UploadSupportSheet(IFormFile formFile)
+        public void GenerateAssistantData(IFormFile formFile)
+        {
+            var farmRegisters = GetFarmRegisters(formFile);
+
+            using (StreamWriter writer = new StreamWriter("data_assistant.txt"))
+            {
+                foreach (var f in farmRegisters)
+                {
+                    var text = @$"Fazenda: {f.Fazenda} - Status: {f.Status} - Ultimo: {f.Ultimo} - Antena: {f.Antena} - Topologia: {f.Topologia} - Responsavel: {f.Responsavel} - Data: {f.Data} - Mês: {f.Mes} - Data solucionado: {f.SolucionadoData} - Contato da fazenda: {f.ContatoDaFazenda} - Problema observado: {f.ProblemaObservado} - Formula de resolução: {f.FormulaDeResolucao} - Gravidade do problema: {f.GravidadeDoProblema} - Observação: {f.Observacao}";
+
+                    writer.WriteLine(text);
+                }
+
+                GenerateTotals(farmRegisters, writer);
+            }
+        }
+
+        public void GenerateTotals(IList<FarmRegister> farmRegisters, StreamWriter writer)
+        {
+            // Total por antena
+            var antennaProblems = farmRegisters
+                .GroupBy(x => x.Antena)
+                .Select(x => new
+                {
+                    x.FirstOrDefault()?.Antena,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var antennaProblem in antennaProblems)
+            {
+                var text = $"A antena {antennaProblem.Antena} teve o total de {antennaProblem.Count} atendimentos";
+                writer.WriteLine(text);
+            }
+
+            // Total por fazenda
+            var farmProblems = farmRegisters
+                .GroupBy(x => x.Fazenda)
+                .Select(x => new
+                {
+                    x.FirstOrDefault()?.Fazenda,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var farmProblem in farmProblems)
+            {
+                var text = $"A fazenda {farmProblem.Fazenda} teve o total de {farmProblem.Count} atendimentos";
+                writer.WriteLine(text);
+            }
+
+            // Total de atendimentos por responsável
+            var responsibleRegisters = farmRegisters
+                .GroupBy(x => x.Responsavel)
+                .Select(x => new
+                {
+                    x.FirstOrDefault()?.Responsavel,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var responsibleRegister in responsibleRegisters)
+            {
+                var text = $"O responsável {responsibleRegister.Responsavel} teve o total de {responsibleRegister.Count} atendimentos";
+                writer.WriteLine(text);
+            }
+
+            // Totais das Gravidades dos problemas
+            var gravityProblems = farmRegisters
+                .GroupBy(x => x.GravidadeDoProblema)
+                .Select(x => new
+                {
+                    x.FirstOrDefault()?.GravidadeDoProblema,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var gravityProblem in gravityProblems)
+            {
+                var text = $"Teve o total de {gravityProblem.Count} problemas de gravidade {gravityProblem.GravidadeDoProblema}";
+                writer.WriteLine(text);
+            }
+
+            // Total de atendimentos por dia
+            var servicesPerDays = farmRegisters
+                .GroupBy(x => x.Data)
+                .Select(x => new
+                {
+                    x.FirstOrDefault()?.Data,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var servicesPerDay in servicesPerDays)
+            {
+                var text = $"Teve o total de {servicesPerDay.Count} atendimentos no dia {servicesPerDay.Data}";
+                writer.WriteLine(text);
+            }
+
+            // Total de atendimentos por mes
+            var servicesPerMonths = farmRegisters
+                .GroupBy(x => x.Mes)
+                .Select(x => new
+                {
+                    Month = x.FirstOrDefault()?.Mes,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var servicesPerMonth in servicesPerMonths)
+            {
+                var text = $"Teve o total de {servicesPerMonth.Count} atendimentos no mês {servicesPerMonth.Month}";
+                writer.WriteLine(text);
+            }
+
+            // Total por status
+            var statusTotals = farmRegisters
+                .GroupBy(x => x.Status)
+                .Select(x => new
+                {
+                    x.FirstOrDefault()?.Status,
+                    Count = x.Count()
+                })
+                .ToList();
+
+            foreach (var statusTotal in statusTotals)
+            {
+                var text = $"Teve um total de {statusTotal.Count} atendimentos com o status {statusTotal.Status}";
+                writer.WriteLine(text);
+            }
+        }
+
+        public IList<FarmRegister> GetFarmRegisters(IFormFile formFile)
         {
             // Abre o arquivo Excel
             using (var stream = formFile.OpenReadStream())
@@ -59,21 +191,7 @@ namespace Analysis.Animal.System.Services
                         farmRegisters.Add(farmRegister);
                     }
 
-                    var msg = @"
-                        Gere o html desses dados de fazendas de forma gráfica com base em todos os dados da planilhada lida
-                        792 linhas e retorne em html e css com tudo num arquivo html estilizado, 
-                        não coloque texto no retorno, apenas código, sem markdown (```html): 
-                    ";
-
-                    var result = string.Join("; ", farmRegisters.Select(f => @$"
-                        {f.Fazenda} - {f.Status} - {f.Ultimo} - {f.Antena} - {f.Topologia} - 
-                        {f.Responsavel} - {f.Data} - {f.Data} - {f.Mes} - {f.SolucionadoData} -
-                        {f.ContatoDaFazenda} - {f.ProblemaObservado} - {f.FormulaDeResolucao} -
-                        {f.GravidadeDoProblema} - {f.Observacao}
-                    "));
-
-                    var html = _openAiService.GenerateHtml(msg + result);
-                    return html;
+                    return farmRegisters;
                 }
             }
         }

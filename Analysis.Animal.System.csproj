@@ -9,8 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.0-rc1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
-    <PackageReference Include="OpenAI" Version="2.0.0-beta.12" />
+    <PackageReference Include="OpenAI" Version="2.1.0-beta.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

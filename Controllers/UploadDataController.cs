@@ -15,25 +15,21 @@ namespace Analysis.Animal.System.Controllers
         }
 
         [HttpPost]
-        [Route("UploadSupportSheet")]
-        public IActionResult UploadSupportSheet(IFormFile formFile)
+        [Route("GenerateAssistantData")]
+        public IActionResult GenerateAssistantData(IFormFile formFile)
         {
             if (formFile == null)
                 throw new Exception("Não é possível importar a planilha sem ter uma planilha.");
 
-            var message = _uploadDataService.UploadSupportSheet(formFile);
-            return Ok(message);
-        }
-
-        [HttpPost]
-        [Route("UploadFarm")]
-        public IActionResult UploadFarm(IFormFile formFile)
-        {
-            if (formFile == null)
-                throw new Exception("Não é possível importar a planilha sem ter uma planilha.");
-
-            var message = _uploadDataService.UploadFarm(formFile);
-            return Ok(message);
+            try
+            {
+                _uploadDataService.GenerateAssistantData(formFile);
+                return Ok("Arquivo gerado com sucesso 'data_assistant.txt'");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

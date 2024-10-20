@@ -1,19 +1,30 @@
+using System.Text;
+using System.Text.Json;
+using Analysis.Animal.System.Models;
 using Analysis.Animal.System.Services.Interfaces;
 using OpenAI.Chat;
 
 namespace Analysis.Animal.System.Services.OpenAI
 {
-    public class OpenAIService : IOpenAIService
+    public partial class OpenAIService : IOpenAIService
     {
-        public string GenerateHtml(string prompt)
+        private ChatClient _openAiClient;
+        private string? _apiKey;
+
+        private HttpClient _assistantHttpClient = new();
+
+        private static string? _analyticsCode;
+
+        public OpenAIService()
         {
-            var client = new ChatClient("gpt-4o-mini", Environment.GetEnvironmentVariable("OPEN_AI_APIKEY"));
+            _apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            _openAiClient = new ChatClient("gpt4-mini", _apiKey);
 
-            var completion = client.CompleteChat(prompt);
+            // Configura cliente do assistente
+            _assistantHttpClient.BaseAddress = new Uri("https://api.openai.com");
 
-            var html = completion.Value.Content[0].Text;
-
-            return html;
+            _assistantHttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+            _assistantHttpClient.DefaultRequestHeaders.Add("OpenAI-Beta", "assistants=v2");
         }
     }
 }
